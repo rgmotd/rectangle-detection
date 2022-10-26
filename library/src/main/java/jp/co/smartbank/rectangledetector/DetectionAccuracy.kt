@@ -27,6 +27,11 @@ enum class DetectionAccuracy {
                 CannyAlgorithmStrategy(CannyAlgorithmStrategy.Level.Strict)
             )
         )
-        Passive -> CannyAlgorithmStrategy(CannyAlgorithmStrategy.Level.Normal)
+        Passive -> CompositeContourDetectionStrategy(
+            listOf(
+                AdaptiveThresholdStrategy(),
+                CannyAlgorithmStrategy(CannyAlgorithmStrategy.Level.Normal)
+            )
+        )
     }
 }
