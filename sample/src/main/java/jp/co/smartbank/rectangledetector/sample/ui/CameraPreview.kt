@@ -2,7 +2,10 @@ package jp.co.smartbank.rectangledetector.sample.ui
 
 import android.annotation.SuppressLint
 import android.util.Size
+import android.view.MotionEvent
+import android.view.View
 import androidx.camera.core.CameraSelector
+import androidx.camera.core.FocusMeteringAction
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.ImageCapture
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -107,7 +110,22 @@ private fun bindCameraUseCases(
         imageAnalyzer?.let { imageAnalysis.setAnalyzer(cameraExecutor, it) }
 
         val useCases = arrayOf(preview, imageCapture, imageAnalysis).filterNotNull()
-        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, *useCases.toTypedArray())
+        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, *useCases.toTypedArray())
+        previewView.setOnTouchListener { view: View, motionEvent: MotionEvent ->
+            when (motionEvent.action) {
+                MotionEvent.ACTION_DOWN -> return@setOnTouchListener true
+                MotionEvent.ACTION_UP -> {
+                    view.performClick()
+                    val factory = previewView.meteringPointFactory
+                    val point = factory.createPoint(motionEvent.x, motionEvent.y)
+                    val action = FocusMeteringAction.Builder(point).build()
+
+                    camera.cameraControl.startFocusAndMetering(action)
+                    return@setOnTouchListener true
+                }
+                else -> return@setOnTouchListener false
+            }
+        }
         preview.setSurfaceProvider(previewView.surfaceProvider)
     } catch (e: Exception) {
     }

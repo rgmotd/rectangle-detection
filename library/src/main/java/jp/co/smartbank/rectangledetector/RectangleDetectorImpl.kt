@@ -62,7 +62,7 @@ internal class RectangleDetectorImpl(detectionAccuracy: DetectionAccuracy) : Rec
             imageHeight - undetectableEdgeAreaHeight
         )
         val isValidPosition = points.all { detectableArea.contains(it.x, it.y) }
-        return isValidDistortionRatio && isValidPosition
+        return isValidPosition
     }
 
     companion object {
