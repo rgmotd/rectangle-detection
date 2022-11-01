@@ -28,19 +28,30 @@ internal class RectangleDetectorImpl(detectionAccuracy: DetectionAccuracy) : Rec
         val rectangles = detectRectanglesInternal(scaledBitmap)
         return DetectionResult(
             imageSize = Size(bitmap.width, bitmap.height),
-            rectangle = rectangles?.scaled(1 / scaleRatio)
+            rectangles = rectangles.map { it.scaled(1 / scaleRatio) }
         )
     }
 
-    private fun detectRectanglesInternal(bitmap: Bitmap): Rectangle? {
+    private fun detectRectanglesInternal(bitmap: Bitmap): List<Rectangle> {
         val mat = Mat().also { Utils.bitmapToMat(bitmap, it) }
         val contours = strategy.detectContours(mat)
-
+        println("==========\n" + contours + "\n==========")
         // Filter out heavily distorted rectangles.
-
-        return contourToRectangles(contours)
+        val rectangles = contourToRectangles(contours)
             .filter { it.isValidForDetection(bitmap.width, bitmap.height) }
-            .maxByOrNull { it.circumferenceLength }
+
+        // Filter out Rectangles approximated to other.
+        val distanceTolerance = max(bitmap.width, bitmap.height) * 0.02f
+        return rectangles.fold(emptyList()) { result, rectangle ->
+            val approximatedRectangle = result.firstOrNull { it.isApproximated(rectangle, distanceTolerance) }
+            if (approximatedRectangle != null) {
+                val largerRectangle = listOf(rectangle, approximatedRectangle)
+                    .maxByOrNull { it.circumferenceLength } ?: approximatedRectangle
+                result - approximatedRectangle + largerRectangle
+            } else {
+                result + rectangle
+            }
+        }
     }
 
     private fun contourToRectangles(contour: List<MatOfPoint>): List<Rectangle> = contour.map {

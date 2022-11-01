@@ -1,5 +1,10 @@
 package jp.co.smartbank.rectangledetector.strategy
 
+import android.graphics.Bitmap
+import android.util.Base64
+import java.io.ByteArrayOutputStream
+import org.opencv.android.Utils
+import org.opencv.core.CvException
 import org.opencv.core.Mat
 import org.opencv.core.MatOfPoint
 import org.opencv.core.Size

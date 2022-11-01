@@ -32,7 +32,7 @@ abstract class ContourDetectionStrategy {
 
             val arcLength = Imgproc.arcLength(pointMat, true)
             val allowanceLength = arcLength * allowanceRatioToArcLength
-            Imgproc.approxPolyDP(pointMat, approx, allowanceLength, true)
+            Imgproc.approxPolyDP(pointMat, approx, 30.0, true)
             approx.convertTo(approx2, CvType.CV_32S)
             if (approx2.size().area() == 4.0) {
                 approx2

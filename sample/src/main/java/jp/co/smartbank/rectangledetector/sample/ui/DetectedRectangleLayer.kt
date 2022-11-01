@@ -26,7 +26,7 @@ fun DetectedRectangleLayer(
     }
 
     Canvas(modifier = modifier) {
-        detectionResult.rectanglesInPreview(previewSize).also {
+        detectionResult.rectanglesInPreview(previewSize).forEach {
             val path = Path().apply {
                 moveTo(it.topLeft.x.toFloat(), it.topLeft.y.toFloat())
                 lineTo(it.topRight.x.toFloat(), it.topRight.y.toFloat())
@@ -61,25 +61,27 @@ private fun DetectionResult.previewRectInImage(previewSize: Size): Rect {
     }
 }
 
-private fun DetectionResult.rectanglesInPreview(previewSize: Size): Rectangle {
+private fun DetectionResult.rectanglesInPreview(previewSize: Size): List<Rectangle> {
     val previewRectInImage = previewRectInImage(previewSize)
-    val scaleRatio = previewSize.width / previewRectInImage.width
-    return Rectangle(
-        topLeft = Point(
-            ((rectangle?.topLeft?.x?.minus(previewRectInImage.left))?.times(scaleRatio))?.roundToInt() ?: 0,
-            ((rectangle?.topLeft?.y?.minus(previewRectInImage.top))?.times(scaleRatio))?.roundToInt() ?: 0
-        ),
-        topRight = Point(
-            ((rectangle?.topRight?.x?.minus(previewRectInImage.left))?.times(scaleRatio))?.roundToInt() ?: 0,
-            ((rectangle?.topRight?.y?.minus(previewRectInImage.top))?.times(scaleRatio))?.roundToInt() ?: 0
-        ),
-        bottomLeft = Point(
-            ((rectangle?.bottomLeft?.x?.minus(previewRectInImage.left))?.times(scaleRatio))?.roundToInt() ?: 0,
-            ((rectangle?.bottomLeft?.y?.minus(previewRectInImage.top))?.times(scaleRatio))?.roundToInt() ?: 0
-        ),
-        bottomRight = Point(
-            ((rectangle?.bottomRight?.x?.minus(previewRectInImage.left))?.times(scaleRatio))?.roundToInt() ?: 0,
-            ((rectangle?.bottomRight?.y?.minus(previewRectInImage.top))?.times(scaleRatio))?.roundToInt() ?: 0
+    return rectangles.map {
+        val scaleRatio = previewSize.width / previewRectInImage.width
+        Rectangle(
+            topLeft = Point(
+                ((it.topLeft.x - previewRectInImage.left) * scaleRatio).roundToInt(),
+                ((it.topLeft.y - previewRectInImage.top) * scaleRatio).roundToInt()
+            ),
+            topRight = Point(
+                ((it.topRight.x - previewRectInImage.left) * scaleRatio).roundToInt(),
+                ((it.topRight.y - previewRectInImage.top) * scaleRatio).roundToInt()
+            ),
+            bottomLeft = Point(
+                ((it.bottomLeft.x - previewRectInImage.left) * scaleRatio).roundToInt(),
+                ((it.bottomLeft.y - previewRectInImage.top) * scaleRatio).roundToInt()
+            ),
+            bottomRight = Point(
+                ((it.bottomRight.x - previewRectInImage.left) * scaleRatio).roundToInt(),
+                ((it.bottomRight.y - previewRectInImage.top) * scaleRatio).roundToInt()
+            )
         )
-    )
+    }
 }

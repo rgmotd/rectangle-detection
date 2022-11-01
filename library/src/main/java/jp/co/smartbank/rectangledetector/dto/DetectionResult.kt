@@ -7,5 +7,5 @@ import android.util.Size
  */
 data class DetectionResult(
     val imageSize: Size,
-    val rectangle: Rectangle?
+    val rectangles: List<Rectangle> = emptyList()
 )
